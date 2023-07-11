@@ -1,0 +1,20 @@
+{
+  "name": "networking",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "go build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arhamymr/go-backend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/arhamymr/go-backend/issues"
+  },
+  "homepage": "https://github.com/arhamymr/go-backend#readme"
+}
