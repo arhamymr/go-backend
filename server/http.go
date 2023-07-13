@@ -2,6 +2,7 @@ package server
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -17,6 +18,7 @@ func (ws *WebServer) ServeHTTP(w http.ResponseWriter, r *http.Request){
 
 func (ws *WebServer) GET(url string, handler http.HandlerFunc){
 	ws.mux.HandleFunc(url, func(w http.ResponseWriter, r *http.Request) {
+		
 		if r.Method != http.MethodGet {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 			return 
@@ -39,22 +41,22 @@ func checkValidPortNumber(port uint16) error {
 	return nil
 }
 
-func InitWebServer(port uint16) *WebServer {
+func handlePOSTRequest(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "Handling POST request...")
+	// Custom logic for handling POST request
+}
+
+func StartServer(port uint16, handler http.Handler) {
 	// check valid port number 
 	err := checkValidPortNumber(port)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	server := CreateWebserver()
-	
-	// run server
 	log.Println("Server is running on port:", port)
-	err = http.ListenAndServe(":"+strconv.Itoa(int(port)), nil)
+	err = http.ListenAndServe(":"+strconv.Itoa(int(port)), handler)
 
 	if err != nil {
 		log.Fatal("Failed to start web server: %v", err)
 	}
-
-	return server;
 }

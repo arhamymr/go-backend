@@ -6,6 +6,6 @@ import (
 )
 
 func GetPost(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Hellow World");
+	fmt.Fprintf(w, "Hellow World");
 }
 
