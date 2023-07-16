@@ -23,6 +23,8 @@ func (ws *WebServer) GET(url string, handler http.HandlerFunc){
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 			return 
 		}
+
+		log.Printf("Received GET request : %s %s", r.Method, r.URL.Path);
 		handler(w, r)
 	})
 }

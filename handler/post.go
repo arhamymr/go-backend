@@ -1,11 +1,30 @@
 package handler
 
 import (
-	"fmt"
+	"encoding/json"
 	"net/http"
 )
 
+type Post struct {
+	Title string `json:"title"`
+	Content string `json:"content"`
+}
+
 func GetPost(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hellow World");
+	post := Post{
+		Title: "Title here",
+		Content: "content here",
+	}
+
+	jsonData, err := json.Marshal(post)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return 
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
 }
 
