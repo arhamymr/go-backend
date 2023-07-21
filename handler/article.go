@@ -10,7 +10,7 @@ type Post struct {
 	Content string `json:"content"`
 }
 
-func GetPost(w http.ResponseWriter, r *http.Request) {
+func GetPostArticle(w http.ResponseWriter, r *http.Request) {
 	post := Post{
 		Title: "Title here",
 		Content: "content here",
@@ -28,3 +28,7 @@ func GetPost(w http.ResponseWriter, r *http.Request) {
 	w.Write(jsonData)
 }
 
+
+func SubmitPostArticle(w http.ResponseWriter, h http.Request) {
+	
+}

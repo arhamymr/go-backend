@@ -2,38 +2,59 @@ package server
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
 )
 
 type WebServer struct {
-	mux *http.ServeMux
+	// mux *http.ServeMux
+	routes map[string]http.HandlerFunc
 }
 
 func (ws *WebServer) ServeHTTP(w http.ResponseWriter, r *http.Request){
-	ws.mux.ServeHTTP(w,r)
+	if handler, ok := ws.routes[r.Method+" "+r.URL.Path]; ok {
+		log.Printf("Received GET request : %s %s", r.Method, r.URL.Path);
+		handler(w, r)
+	} else {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed);
+	}
+}
+
+func (ws *WebServer) addRoute(method string, url string, handler http.HandlerFunc) {
+	if ws.routes == nil {
+		ws.routes = make(map[string]http.HandlerFunc)
+	} 
+	key := method + " " + url
+	ws.routes[key] = handler
 }
 
 func (ws *WebServer) GET(url string, handler http.HandlerFunc){
-	ws.mux.HandleFunc(url, func(w http.ResponseWriter, r *http.Request) {
-		
-		if r.Method != http.MethodGet {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-			return 
-		}
-
-		log.Printf("Received GET request : %s %s", r.Method, r.URL.Path);
-		handler(w, r)
-	})
+	ws.addRoute(http.MethodGet, url, handler )
 }
+func (ws *WebServer) PUT(url string, handler http.HandlerFunc){
+	ws.addRoute(http.MethodPut, url, handler )
+}
+
+func (ws *WebServer) PATCH(url string, handler http.HandlerFunc){
+	ws.addRoute(http.MethodPatch, url, handler )
+}
+
+func (ws *WebServer) DELETE(url string, handler http.HandlerFunc){
+	ws.addRoute(http.MethodDelete, url, handler )
+}
+
+func (ws *WebServer) POST(url string, handler http.HandlerFunc){
+	ws.addRoute(http.MethodPost, url, handler )
+}
+
 
 func CreateWebserver() *WebServer {
 	return &WebServer{
-			mux: http.NewServeMux(),
+			routes: make(map[string]http.HandlerFunc),
 		}
 }
+
 
 func checkValidPortNumber(port uint16) error {
 	const MAX_PORT_RANGE = 65535
@@ -41,11 +62,6 @@ func checkValidPortNumber(port uint16) error {
 		return errors.New("invalid port number")
 	}
 	return nil
-}
-
-func handlePOSTRequest(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Handling POST request...")
-	// Custom logic for handling POST request
 }
 
 func StartServer(port uint16, handler http.Handler) {
