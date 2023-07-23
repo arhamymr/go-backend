@@ -6,9 +6,9 @@ import (
 	"networking/server"
 )
 
+
 func main() {
 	database.InitDatabase();
-
 	r := server.CreateWebserver()
 	r.GET("/", handler.GetPostArticle)
 	r.GET("/users", handler.GetPostArticle)

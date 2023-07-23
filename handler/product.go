@@ -1,10 +1,10 @@
 package handler
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"networking/database"
+	"networking/server"
 )
 
 type Product struct {
@@ -18,7 +18,7 @@ type Product struct {
 	Likes int `json:"likes"`
 }
 
-func AddProduct(w http.ResponseWriter, r *http.Request) {
+func AddProduct(ctx *server.Context) {
 	var product = database.Product{
 		Name: "hellow",
 		Description: "desc",
@@ -29,32 +29,22 @@ func AddProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	database.DB.Create(&product);
-
-	jsonData, err := json.Marshal(product)
-
+	err := ctx.JSON(product)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(ctx.Response, err.Error(), http.StatusInternalServerError)
 		return 
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonData)
 }
 
-func GetProducts(w http.ResponseWriter, r *http.Request) {
+func GetProducts(ctx *server.Context) {
 	var products []database.Product
 	database.DB.Find(&products);
 	fmt.Println(products, &database.DB, "- inside getPRoductd,", database.DB)
 	
-	jsonData, err := json.Marshal(products)
+	err := ctx.JSON(products)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(ctx.Response, err.Error(), http.StatusInternalServerError)
 		return 
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonData)
 }

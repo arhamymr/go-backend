@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"encoding/json"
 	"net/http"
+	"networking/server"
 )
 
 type Post struct {
@@ -10,25 +10,18 @@ type Post struct {
 	Content string `json:"content"`
 }
 
-func GetPostArticle(w http.ResponseWriter, r *http.Request) {
+func GetPostArticle(ctx *server.Context) {
 	post := Post{
 		Title: "Title here",
 		Content: "content here",
 	}
 
-	jsonData, err := json.Marshal(post)
+	err := ctx.JSON(post)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(ctx.Response, err.Error(), http.StatusInternalServerError)
 		return 
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonData)
+	}	
 }
 
 
-func SubmitPostArticle(w http.ResponseWriter, h http.Request) {
-	
-}

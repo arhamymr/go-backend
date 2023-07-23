@@ -16,6 +16,7 @@ func InitDatabase() {
 
 	if err != nil {
 		fmt.Println("failed to connect databases")
+		return
 	}
 
 	fmt.Println("Database initialized successfully")
