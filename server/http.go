@@ -10,6 +10,7 @@ import (
 type WebServer struct {
 	routes map[string]*Route
 	context *Context
+	Middleware []HandlerFunc
 }
 
 func CreateWebserver() *WebServer {
@@ -19,11 +20,11 @@ func CreateWebserver() *WebServer {
 }
 
 func (ws *WebServer) ServeHTTP(w http.ResponseWriter, r *http.Request){
+	ctx := NewContext(w, r)
+	ws.applyMiddleware(ctx)
 	if route, ok := ws.routes[r.Method+" "+r.URL.Path]; ok {
-		ctx := NewContext(w, r)
-		// call middleware
 		route.applyMiddleware(ctx)
-		log.Printf("Received GET request : %s %s", r.Method, r.URL.Path);
+		log.Printf("Received %s request : %s", r.Method, r.URL.Path);
 		route.handler(ctx)
 	} else {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed);
@@ -42,6 +43,17 @@ func (ws *WebServer) addRoute(method string, url string, handler HandlerFunc) *R
 	key := method + " " + url
 	ws.routes[key] = route
 	return route
+}
+
+func (ws *WebServer) AddMiddleware(middleware ...HandlerFunc) *WebServer {
+	ws.Middleware = append(ws.Middleware, middleware...)
+	return ws;
+}
+
+func (ws *WebServer) applyMiddleware(ctx *Context) {
+	for _, m := range ws.Middleware {
+		m(ctx)
+	}
 }
 
 func (ws *WebServer) GET(url string, handler HandlerFunc) *Route {

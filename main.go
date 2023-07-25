@@ -30,6 +30,7 @@ func anotherMiddleware2(ctx *server.Context) {
 func main() {
 	database.InitDatabase();
 	r := server.CreateWebserver()
+	r.AddMiddleware(anotherMiddleware, anotherMiddleware2)
 	r.GET("/", handler.GetPostArticle).AddMiddleware(anotherMiddleware, anotherMiddleware2)
 	r.GET("/users", handler.GetPostArticle)
 	r.GET("/products", handler.GetProducts)
