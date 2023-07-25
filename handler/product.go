@@ -36,6 +36,7 @@ func AddProduct(ctx *server.Context) {
 	}
 }
 
+
 func GetProducts(ctx *server.Context) {
 	var products []database.Product
 	database.DB.Find(&products);

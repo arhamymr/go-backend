@@ -7,26 +7,10 @@ import (
 	"strconv"
 )
 
-type (
-	Route struct {
-		url string
-		method string
-		handler HandlerFunc
-		params map[string][]string
-		body []byte
-	}	
-
-	
-	WebServer struct {
-		// mux *http.ServeMux
-		routes map[string]*Route
-		context *Context
-	}
-
-	HandlerFunc func (ctx *Context)
-)
-
-
+type WebServer struct {
+	routes map[string]*Route
+	context *Context
+}
 
 func CreateWebserver() *WebServer {
 	return &WebServer{
@@ -34,19 +18,19 @@ func CreateWebserver() *WebServer {
 		}
 }
 
-
 func (ws *WebServer) ServeHTTP(w http.ResponseWriter, r *http.Request){
 	if route, ok := ws.routes[r.Method+" "+r.URL.Path]; ok {
-		log.Printf("Received GET request : %s %s", r.Method, r.URL.Path);
 		ctx := NewContext(w, r)
+		// call middleware
+		route.applyMiddleware(ctx)
+		log.Printf("Received GET request : %s %s", r.Method, r.URL.Path);
 		route.handler(ctx)
-		
 	} else {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed);
 	}
 }
 
-func (ws *WebServer) addRoute(method string, url string, handler HandlerFunc) {
+func (ws *WebServer) addRoute(method string, url string, handler HandlerFunc) *Route {
 	if ws.routes == nil {
 		ws.routes = make(map[string]*Route)
 	} 
@@ -57,27 +41,27 @@ func (ws *WebServer) addRoute(method string, url string, handler HandlerFunc) {
 	}
 	key := method + " " + url
 	ws.routes[key] = route
+	return route
 }
 
-func (ws *WebServer) GET(url string, handler HandlerFunc){
-	ws.addRoute(http.MethodGet, url, handler )
+func (ws *WebServer) GET(url string, handler HandlerFunc) *Route {
+	return ws.addRoute(http.MethodGet, url, handler )
 }
-func (ws *WebServer) PUT(url string, handler HandlerFunc){
-	ws.addRoute(http.MethodPut, url, handler )
-}
-
-func (ws *WebServer) PATCH(url string, handler HandlerFunc){
-	ws.addRoute(http.MethodPatch, url, handler )
+func (ws *WebServer) PUT(url string, handler HandlerFunc) *Route {
+	return ws.addRoute(http.MethodPut, url, handler )
 }
 
-func (ws *WebServer) DELETE(url string, handler HandlerFunc){
-	ws.addRoute(http.MethodDelete, url, handler )
+func (ws *WebServer) PATCH(url string, handler HandlerFunc) *Route{
+	return ws.addRoute(http.MethodPatch, url, handler )
 }
 
-func (ws *WebServer) POST(url string, handler HandlerFunc){
-	ws.addRoute(http.MethodPost, url, handler )
+func (ws *WebServer) DELETE(url string, handler HandlerFunc) *Route {
+	return ws.addRoute(http.MethodDelete, url, handler )
 }
 
+func (ws *WebServer) POST(url string, handler HandlerFunc) *Route {
+	return ws.addRoute(http.MethodPost, url, handler )
+}
 
 func StartServer(port uint16, handler http.Handler) {
 	// check valid port number 

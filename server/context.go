@@ -8,6 +8,7 @@ import (
 type Context struct {
 	Request  *http.Request
 	Response http.ResponseWriter
+	Middleware []HandlerFunc
 }
 
 func NewContext (w http.ResponseWriter, r *http.Request) *Context {
@@ -24,3 +25,4 @@ func (ctx *Context) JSON(data interface{}) error {
 	ctx.Response.Write(jsonData)
 	return err
 }
+
